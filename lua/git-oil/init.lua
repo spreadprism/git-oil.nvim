@@ -80,9 +80,15 @@ local function get_status_priority(status_code)
 	local second_char = status_code:sub(2, 2)
 
 	-- Conflicts
-	if status_code == "UU" or status_code == "AA" or status_code == "DD"
-		or status_code == "AU" or status_code == "UA"
-		or status_code == "DU" or status_code == "UD" then
+	if
+		status_code == "UU"
+		or status_code == "AA"
+		or status_code == "DD"
+		or status_code == "AU"
+		or status_code == "UA"
+		or status_code == "DU"
+		or status_code == "UD"
+	then
 		return status_priority.conflict
 	end
 
@@ -260,32 +266,28 @@ local function get_git_status_async(dir, callback)
 	-- Start a new pending request
 	pending_requests[git_root] = { callback }
 
-	vim.system(
-		{ "git", "-C", git_root, "status", "--porcelain" },
-		{ text = true },
-		function(result)
-			vim.schedule(function()
-				local status = {}
-				if result.code == 0 and result.stdout then
-					status = parse_git_status_output(result.stdout, git_root)
+	vim.system({ "git", "-C", git_root, "status", "--porcelain" }, { text = true }, function(result)
+		vim.schedule(function()
+			local status = {}
+			if result.code == 0 and result.stdout then
+				status = parse_git_status_output(result.stdout, git_root)
 
-					-- Cache the result
-					status_cache[git_root] = {
-						status = status,
-						timestamp = vim.loop.now(),
-					}
-				end
+				-- Cache the result
+				status_cache[git_root] = {
+					status = status,
+					timestamp = vim.loop.now(),
+				}
+			end
 
-				-- Call all pending callbacks
-				local callbacks = pending_requests[git_root] or {}
-				pending_requests[git_root] = nil
+			-- Call all pending callbacks
+			local callbacks = pending_requests[git_root] or {}
+			pending_requests[git_root] = nil
 
-				for _, cb in ipairs(callbacks) do
-					cb(status)
-				end
-			end)
-		end
-	)
+			for _, cb in ipairs(callbacks) do
+				cb(status)
+			end
+		end)
+	end)
 end
 
 -- Get git status (uses async when available)
@@ -308,9 +310,15 @@ local function get_highlight_group(status_code)
 	-- Check for merge conflicts first (highest priority)
 	-- UU = both modified, AA = both added, DD = both deleted
 	-- AU/UA = added by us/them, DU/UD = deleted by us/them
-	if status_code == "UU" or status_code == "AA" or status_code == "DD"
-		or status_code == "AU" or status_code == "UA"
-		or status_code == "DU" or status_code == "UD" then
+	if
+		status_code == "UU"
+		or status_code == "AA"
+		or status_code == "DD"
+		or status_code == "AU"
+		or status_code == "UA"
+		or status_code == "DU"
+		or status_code == "UD"
+	then
 		return "OilGitConflict", symbols.conflict
 	end
 
@@ -485,7 +493,7 @@ local function setup_autocmds()
 		group = group,
 		pattern = "oil://*",
 		callback = function()
-			vim.schedule(apply_git_highlights_debounced)
+			vim.schedule(apply_git_highlights)
 		end,
 	})
 
@@ -494,7 +502,7 @@ local function setup_autocmds()
 		group = group,
 		pattern = "oil://*",
 		callback = function()
-			vim.schedule(apply_git_highlights_debounced)
+			vim.schedule(apply_git_highlights)
 		end,
 	})
 

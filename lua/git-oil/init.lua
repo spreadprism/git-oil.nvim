@@ -412,8 +412,13 @@ local function apply_highlights_to_buffer(git_status, current_dir, target_bufnr)
 				local name_start = line:find(entry.name, 1, true)
 				if name_start then
 					-- Single extmark for both text highlight and virtual text symbol
+					local end_col = name_start + #entry.name
+					if entry.type == "file" then
+						end_col = end_col - 1
+					end
+
 					vim.api.nvim_buf_set_extmark(bufnr, ns_id, i - 1, name_start - 1, {
-						end_col = name_start + #entry.name,
+						end_col = end_col,
 						hl_group = hl_group,
 						virt_text = { { " " .. symbol, hl_group } },
 						virt_text_pos = "eol",

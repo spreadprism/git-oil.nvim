@@ -413,7 +413,7 @@ local function apply_highlights_to_buffer(git_status, current_dir, target_bufnr)
 				if name_start then
 					-- Single extmark for both text highlight and virtual text symbol
 					vim.api.nvim_buf_set_extmark(bufnr, ns_id, i - 1, name_start - 1, {
-						end_col = name_start - 1 + #entry.name,
+						end_col = name_start + #entry.name,
 						hl_group = hl_group,
 						virt_text = { { " " .. symbol, hl_group } },
 						virt_text_pos = "eol",
